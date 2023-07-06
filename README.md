@@ -1,1 +1,3 @@
 # Tictactoe-in-C
+
+This C program implements a Tic Tac Toe game that reads moves from an input file and simulates the game accordingly. It utilizes a 2D array to represent the game board and provides functions to print the board, check for a win, and validate the moves. The program validates command-line arguments, including the player symbol and input file, ensuring they meet the required criteria. It reads moves from the input file, checks for the presence of exactly nine integers and their uniqueness, and updates the game board accordingly. After all moves are made, it prints the final game board and determines the winner or declares a tie. The code incorporates error handling and provides meaningful error messages for invalid inputs or moves.
