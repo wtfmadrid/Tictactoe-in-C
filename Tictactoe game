@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Function to print the game board
+void printBoard(char board[3][3]) {
+    printf(" %c | %c | %c\n", board[0][0], board[0][1], board[0][2]);
+    printf("---+---+---\n");
+    printf(" %c | %c | %c\n", board[1][0], board[1][1], board[1][2]);
+    printf("---+---+---\n");
+    printf(" %c | %c | %c\n", board[2][0], board[2][1], board[2][2]);
+}
+
+// Function to check if a player has won
+int checkWin(char board[3][3], char player) {
+    // Check rows
+    for (int i = 0; i < 3; i++) {
+        if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+            return 1;
+        }
+    }
+
+    // Check columns
+    for (int i = 0; i < 3; i++) {
+        if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+            return 1;
+        }
+    }
+
+    // Check diagonals
+    if ((board[0][0] == player && board[1][1] == player && board[2][2] == player) ||
+        (board[0][2] == player && board[1][1] == player && board[2][0] == player)) {
+        return 1;
+    }
+
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "Invalid number of arguments.\n");
+        return 1;
+    }
+
+    // Check the first argument (player)
+    char player = argv[1][0];
+    if (player != 'X' && player != 'O') {
+        fprintf(stderr, "Arg 1: must be X or O\n");
+        return 1;
+    }
+
+    // Check the second argument (input file)
+    FILE *file = fopen(argv[2], "r");
+    if (file == NULL) {
+        fprintf(stderr, "Arg 2: Must be a readable file\n");
+        return 2;
+    }
+
+    int moves[9];
+    int numMoves = 0;
+
+    // Read the moves from the input file
+    int value;
+    while (fscanf(file, "%d", &value) == 1) {
+        moves[numMoves] = value;
+        numMoves++;
+    }
+
+    fclose(file);
+
+    // Check if there are 9 integers in the file
+    if (numMoves != 9) {
+        fprintf(stderr, "Arg 2: File must contain exactly 9 integers.\n");
+        return 3;
+    }
+
+    // Check if there are 9 unique integers from 1 to 9 in the file
+    int unique[9] = {0};
+    for (int i = 0; i < numMoves; i++) {
+        if (unique[moves[i] - 1] == 1) {
+            fprintf(stderr, "Arg 2: File must contain 9 unique integers from 1 to 9.\n");
+            return 3;
+        }
+        unique[moves[i] - 1] = 1;
+    }
+
+    // Create and initialize the game board
+    char board[3][3] = {
+        {' ', ' ', ' '},
+        {' ', ' ', ' '},
+        {' ', ' ', ' '}
+    };
+
+    // Iterate through the moves and update the game board
+    for (int i = 0; i < numMoves; i++) {
+        int row = (moves[i] - 1) / 3;
+        int col = (moves[i] - 1) % 3;
+
+        // Check if the cell is already occupied
+        if (board[row][col] != ' ') {
+            fprintf(stderr, "Invalid move: Cell %d is already occupied.\n", moves[i]);
+            return 3;
+        }
+
+        // Make the move
+        board[row][col] = (i % 2 == 0) ? 'X' : 'O';
+
+        // Check if a player has won
+        if (checkWin(board, 'X') || checkWin(board, 'O')) {
+            break;
+        }
+    }
+
+    // Print the final game board
+    printBoard(board);
+
+    // Check the winner
+    if (checkWin(board, 'X')) {
+        printf("X is the winner!\n");
+        return 4;
+    } else if (checkWin(board, 'O')) {
+        printf("O is the winner!\n");
+        return 5;
+    } else {
+        printf("The game ends in a tie.\n");
+        return 6;
+    }
+}
